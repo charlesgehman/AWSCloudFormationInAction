@@ -280,7 +280,7 @@
     "WebServerInstance" : {
       "Type" : "AWS::EC2::Instance",
       "Metadata" : {
-        "Comment" : "Install a simple PHP application",
+        "Comment" : "Install Apache WebServer and Helper Apps",
         "AWS::CloudFormation::Init" : {
           "config" : {
             "packages" : {
