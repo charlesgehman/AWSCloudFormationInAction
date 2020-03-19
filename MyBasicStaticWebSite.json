@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   
-  "Description" : "AWS CloudFormation In Action Template For a Static WebSite: Create a basic static website using a single EC2 instance, Apache and HTML. This template demos the template structure and the use of CloudFormation Helper scripts to install the software and files necessary to deploy the Apache web server at instance launch time. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "AWS CloudFormation In Action Chapter 3 Template For a Static WebSite: Create a basic static website using a single EC2 instance, Apache and HTML. This template demos the template structure and the use of CloudFormation Helper scripts to install the software and files necessary to deploy the Apache web server at instance launch time. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
   
   "Parameters" : {
       
