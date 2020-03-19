@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation In Action example deploys static website on VPC EC2 instance with NACLs and IGW. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "AWS CloudFormation In Action First template for Chapter 4: example deploys static website on VPC EC2 instance with NACLs and IGW. You will be billed for the AWS resources used if you create a stack from this template.",
 
   "Parameters" : {
 
