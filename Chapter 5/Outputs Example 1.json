@@ -1,7 +1,0 @@
-"Outputs": {
-    "SubnetID": {
-        "Description" : "Subnet ID",
-        "Value" : {"Ref" : "Subnet" },
-        "Export" : {"Name" : "Networking-SubnetID" },
-    }
-}
