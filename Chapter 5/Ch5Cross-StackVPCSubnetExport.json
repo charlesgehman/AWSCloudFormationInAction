@@ -1,0 +1,55 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation In Action Chapter 5.1 and 5.2: Defines and Exports VPC and Subnets for use in another stack via Cross-Stack references. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Resources" : {
+
+    "VPC" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "10.0.0.0/16",
+        "EnableDnsSupport" : "true",
+        "EnableDnsHostnames" : "true",
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+      }
+    },
+
+    "PublicSubnet" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : "10.0.0.0/24",
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+      }
+    },
+
+    "PrivateSubnet" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+          "VpcId" : { "Ref" : "VPC" },
+          "CidrBlock" : "10.0.1.0/24",
+          "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+        }
+      }
+    },
+
+    "Outputs": {
+      "VPCId" : {
+        "Description" : "VPC ID",
+        "Value" :  { "Ref" : "VPC" },
+        "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-VPCID" }}
+      },
+      "PublicSubnet" : {
+        "Description" : "The subnet ID to use for public servers",
+        "Value" :  { "Ref" : "PublicSubnet" },
+        "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetID" }}
+      },
+      "PrivateSubnet" : {
+        "Description" : "The subnet ID to use for private servers",
+        "Value" :  { "Ref" : "PrivateSubnet" },
+        "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetID" }}
+      }
+      }
+  }
+   

@@ -1,0 +1,176 @@
+{
+    "Resources": {
+        "RootRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Principal": {
+                                "Service": "ec2.amazonaws.com"
+                            },
+                            "Effect": "Allow",
+                            "Sid": ""
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "s3:GetObject"
+                                    ],
+                                    "Resource": {
+                                        ["Fn::Sub" : "arn:aws:s3:::${BucketName}/${KeyPrefix}*"],
+                                    },
+                                    "Effect": "Allow"
+                                }
+                            ]
+                        },
+                        "PolicyName": "AuthenticatedS3GetObjects"
+                    }
+                ]
+            }
+        },
+        "RootInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "RootRole"
+                    }
+                ]
+            }
+        },
+        "InstanceSecurityGroup": {
+            "Properties": {
+                "GroupDescription": "ssh access to instance",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": {
+                            "Ref": "AccessCIDR"
+                        },
+                        "FromPort": 22,
+                        "IpProtocol": "tcp",
+                        "ToPort": 22
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPCID"
+                }
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "ExampleInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "IamInstanceProfile": {
+                    "Ref": "RootInstanceProfile"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSAMIRegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "US1604HVM"
+                    ]
+                },
+                "InstanceType": "t2.large",
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "InstanceSecurityGroup"
+                    }
+                ],
+                "SubnetId": {
+                    "Ref": "SubnetId"
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Sub": [
+                            "#!/bin/bash -x\n#cfn signaling functions\necho \"[INFO] Start UserData in ${S3Region}\";\nfunction cfn_fail\n{\n  cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource ExampleInstance\n  exit 1\n}\nfunction cfn_success\n{\n  cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource ExampleInstance\n  exit 0\n}\nuntil git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo \"Retrying\"; done\ncd /quickstart-linux-utilities;\nsource quickstart-cfn-tools.source;\nqs_update-os || qs_err;\nqs_bootstrap_pip || qs_err \" pip bootstrap failed \";\nqs_aws-cfn-bootstrap || qs_err \" cfn bootstrap failed \";\necho \"[INFO] Executing config-sets\";\ncfn-init -v --stack ${AWS::StackName} --resource ExampleInstance --configsets ec2_bootstrap --region ${AWS::Region} || cfn_fail;\n[ $(qs_status) == 0 ] && cfn_success || cfn_fail\n",
+                            {
+                                "S3Region": {
+                                    "Fn::If": [
+                                        "GovCloudCondition",
+                                        "s3-us-gov-west-1",
+                                        "s3"
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Authentication": {
+                    "S3AccessCreds": {
+                        "type": "S3",
+                        "buckets": [
+                            {
+                                "Fn::Sub": "${BucketName}"
+                            }
+                        ],
+                        "roleName": {
+                            "Ref": "RootRole"
+                        }
+                    }
+                },
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "ec2_bootstrap": [
+                            "helloworld_cfg"
+                        ]
+                    },
+                    "helloworld_cfg": {
+                        "files": {
+                            "/tmp/bootstrap.sh": {
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://${BucketName}.${S3Region}.amazonaws.com/${KeyPrefix}scripts/print_stdout.sh",
+                                        {
+                                            "BucketName": {
+                                                "Ref": "BucketName"
+                                            },
+                                            "S3Region": {
+                                                "Fn::If": [
+                                                    "GovCloudCondition",
+                                                    "s3-us-gov-west-1",
+                                                    {
+                                                        "Fn::Sub": "s3.${AWS::Region}"
+                                                    }
+                                                ]
+                                            },
+                                            "KeyPrefix": {
+                                                "Ref": "KeyPrefix"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "mode": "000755",
+                                "owner": "root",
+                                "group": "root",
+                                "command": "/tmp/bootstrap.sh 'hello world'",
+                                "authentication": "S3AccessCreds"
+                            }
+                        }
+                    }
+                }
+            },
+            "CreationPolicy": {
+                "ResourceSignal": {
+                    "Count": 1,
+                    "Timeout": "PT15M"
+                }
+            }
+        }
+    }
+}
