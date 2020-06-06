@@ -1,7 +1,0 @@
-{
-    "Resources" : {
-        "HelloBucketChuck" : {
-            "Type" : "AWS::S3::Bucket"
-        }
-    }
-}
