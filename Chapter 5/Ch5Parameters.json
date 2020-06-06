@@ -1,0 +1,79 @@
+
+
+
+    "Parameters" : {
+        "Choose an Environment": {
+            "Type": "String",
+            "AllowValues": [
+                "dev",
+                "stage",
+                "prod"
+            ]
+        },
+        "ImageId": {
+            "Type": "String"
+        }
+    },
+   
+
+ "Resources": {
+        "AppServer": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "ImageId"
+                },
+                "SecurityGroupIds": {
+                    "Fn::FindInMap": [
+                        "Environments",
+                        {
+                            "Ref": "Environment"
+                        },
+                        "SecurityGroupIds"
+                    ]
+                },
+                "IamInstanceProfile": {
+                    "Fn::FindInMap": [
+                        "Environments",
+                        {
+                            "Ref": "Environment"
+                        },
+                        "IAMProfile"
+                    ]
+                }
+            }
+        }
+    }
+}
+
+{
+    "Mappings": {
+        "Environments": {
+            "dev": {
+                "IAMProfile": "MyIamRole-Dev",
+                "SecurityGroup": [
+                    "sg-dev1",
+                    "sg-dev2"
+                ],
+                "APIUrl": "https://dev.example.com"
+            },
+            "qa": {
+                "IAMProfile": "MyIamRole-QA",
+                "SecurityGroup": [
+                    "sg-qa1",
+                    "sg-qa2"
+                ],
+                "APIUrl": "https://qa.example.com"
+            },
+            "prod": {
+                "IAMProfile": "MyIamRole-Prod",
+                "SecurityGroup": [
+                    "sg-prod1",
+                    "sg-prod2"
+                ],
+                "APIUrl": "https://prod.example.com"
+            }
+        }
+    }
+}
+

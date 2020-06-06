@@ -1,0 +1,36 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation In Action Networking CHILD stack to use with single example EC2 Instance. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Resources" : {
+
+    "VPC" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "10.0.0.0/16",
+        "EnableDnsSupport" : "true",
+        "EnableDnsHostnames" : "true",
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+      }
+    },
+
+    "PublicSubnet" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : "10.0.0.0/24",
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+      }
+    },
+
+    "PrivateSubnet" : {
+        "Type" : "AWS::EC2::Subnet",
+        "Properties" : {
+          "VpcId" : { "Ref" : "VPC" },
+          "CidrBlock" : "10.0.1.0/24",
+          "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+        }
+      }
+    }
+}

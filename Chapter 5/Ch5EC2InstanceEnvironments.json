@@ -1,0 +1,22 @@
+{
+"Parameters": {
+  "InstanceType" : {
+        "Description" : "Environment",
+        "Type" : "String",
+        "Default" : "dev",
+        "AllowedValues" : ["dev", "stage", "prod"]
+   }
+},
+
+    "Resources": {
+    "MyServer": { 
+        "Type": "AWS::EC2::Instance",
+        "DeletionPolicy" : "Retain",
+            "Properties": {
+            "InstanceType": "t2.micro",
+            "ImageId": "ami-02ccb28830b645a41",
+                     }
+                }
+                 }
+             
+}

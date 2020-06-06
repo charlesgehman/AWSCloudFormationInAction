@@ -1,0 +1,19 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+
+"Description" : "AWS CloudFormation In Action Chapter 5 Imports: Imports VPC and Subnets as resources via Cross-Stack references. You will be billed for the AWS resources used if you create a stack from this template.",
+
+"Resources": {
+    "Server" : {
+        "Type" : "AWS::EC2::Instance",
+        "Properties" : {
+            "InstanceType": "t2.micro",
+            "ImageId": "ami-02ccb28830b645a41",
+            "KeyName": "GenericKeyPair",
+            "SubnetId": {
+                "Fn::ImportValue": "MyVPCandSubnets-PublicSubnetID"
+            }  
+        }
+    }
+}
+}
